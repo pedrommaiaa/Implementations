@@ -1,142 +1,81 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def random_weights(X, random_state: int):
-    '''create vector of random weights
-    Parameters
-    ----------
-    X: 2-dimensional array, shape = [n_samples, n_features]
-    Returns
-    -------
-    w: array, shape = [w_bias + n_features]'''
-    rand = np.random.RandomState(random_state)
-    w = rand.normal(loc=0.0, scale=0.01, size=1 + X.shape[1])
-    return w
+class Perceptron:
+    def __init__(self, lr=0.01, n_iter=1000):
+        self.lr = lr
+        self.n_iter = n_iter
+        self.activation_func = self.step_func
+        self.weights = None
+        self.bias = None
 
-def net_input(X, w):
-    '''Compute net input as dot product'''
-    return np.dot(X, w[1:]) + w[0]
+    def step_func(self, x):
+        return np.where(x>=0,1,0)
 
+    def predict(self, X):
+        linear_output = np.dot(X, self.weights) + self.bias
+        y_predicted = self.activation_func(linear_output)
+        return y_predicted
 
-def predict(X, w):
-    '''Return class label after unit step'''
-    return np.where(net_input(X, w) >= 0.0, 1, -1)
+    def fit(self, X, y):
+        n_samples, n_features = X.shape
 
+        self.weights = np.zeros(n_features)
+        self.bias = 0
 
-def fit(X, y, eta=0.001, n_iter=100):
-    '''loop over exemplars and update weights'''
-    errors = []
-    w = random_weights(X, random_state=1)
-    for exemplar in range(n_iter):
-        error = 0
-        for xi, target in zip(X, y):
-            delta = eta * (target - predict(xi, w))
-            w[1:] += delta * xi
-            w[0] += delta
-            error += int(delta != 0.0)
-        errors.append(error)
-    return w, errors
+        y_ = np.array([1 if i > 0 else 0 for i in y])
 
-def species_generator(mu1, sigma1, mu2, sigma2, n_samples, target, seed):
-    '''creates [n_samples, 2] array
+        for _ in range(self.n_iter):
 
-    Parameters
-    ----------
-    mu1, sigma1: int, shape = [n_samples, 2]
-        mean feature-1, standar-dev feature-1
-    mu2, sigma2: int, shape = [n_samples, 2]
-        mean feature-2, standar-dev feature-2
-    n_samples: int, shape= [n_samples, 1]
-        number of sample cases
-    target: int, shape = [1]
-        target value
-    seed: int
-        random seed for reproducibility
+            for index, x_i in enumerate(X):
 
-    Return
-    ------
-    X: ndim-array, shape = [n_samples, 2]
-        matrix of feature vectors
-    y: 1d-vector, shape = [n_samples, 1]
-        target vector
-    ------
-    X'''
-    rand = np.random.RandomState(seed)
-    f1 = rand.normal(mu1, sigma1, n_samples)
-    f2 = rand.normal(mu2, sigma2, n_samples)
-    X = np.array([f1, f2])
-    X = X.transpose()
-    y = np.full((n_samples), target)
-    return X, y
+                linear_output = np.dot(x_i, self.weights) + self.bias
+                y_predicted = self.activation_func(linear_output)
+
+                update = self.lr * (y_[index] - y_predicted)
+
+                self.weights += update * x_i
+                self.bias += update
+
 
 
 if __name__ == "__main__":
-
-    albatross_weight_mean = 9000 # in grams
-    albatross_weight_variance =  800 # in grams
-    albatross_wingspan_mean = 300 # in cm
-    albatross_wingspan_variance = 20 # in cm
-    albatross_target = 1
-    
-    owl_weight_mean = 1000 # in grams
-    owl_weight_variance =  200 # in grams
-    owl_wingspan_mean = 100 # in cm
-    owl_wingspan_variance = 15 # in cm
-    owl_target = -1
-    
-    n_samples = 100
-    seed = 100
-
-    # aX: feature matrix (weight, wingspan)
-    # ay: target value (1)
-    aX, ay = species_generator(albatross_weight_mean, albatross_weight_variance,
-                               albatross_wingspan_mean, albatross_wingspan_variance,
-                               n_samples,albatross_target,seed )
+   
+    from sklearn.model_selection import train_test_split
+    from sklearn import datasets
 
 
-    albatross_dic = {'weight-(gm)': aX[:,0],
-                     'wingspan-(cm)': aX[:,1],
-                     'species': ay
-                    }
-
-    # put values in a relational table (pandas dataframe)
-    albatross_df = pd.DataFrame(albatross_dic)
+    def accuracy(y_true, y_pred):
+        accuracy = (np.sum(y_true == y_pred) / len(y_true))*100
+        return accuracy
 
 
-    # oX: feature matrix (weight, wingspan)
-    # oy: target value (1)
-    oX, oy = species_generator(owl_weight_mean, owl_weight_variance,
-                               owl_wingspan_mean, owl_wingspan_variance,
-                               n_samples,owl_target,seed )
+    X,y = datasets.make_blobs(n_samples=150, n_features=2, centers=2, cluster_std=1.05, random_state=2)
 
-    owl_dic = {'weight-(gm)': oX[:,0],
-                 'wingspan-(cm)': oX[:,1],
-                 'species': oy
-              }
+    X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.2, random_state=123)
 
-    # put values in a relational table (pandas dataframe)
-    owl_df = pd.DataFrame(owl_dic)
+    p = Perceptron(lr=0.01, n_iter=1000)
 
-    df = albatross_df.append(owl_df, ignore_index=True)
+    p.fit(X_train, y_train)
+    predictions = p.predict(X_test)
 
-    df_shuffle = df.sample(frac=1, random_state=1).reset_index(drop=True)
-    X = df_shuffle[['weight-(gm)','wingspan-(cm)']].to_numpy()
-    y = df_shuffle['species'].to_numpy()
+    print(f"Perceptron classification accuracy {accuracy(y_test, predictions)}%")
 
-    w, errors = fit(X, y, eta=0.01, n_iter=200)
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+    plt.scatter(X_train[:, 0], X_train[:, 1], marker="o", c=y_train)
+ 
+    x0_1 = np.amin(X_train[:, 0])
+    x0_2 = np.amax(X_train[:, 0])
 
-    y_pred = predict(X, w)
-    num_correct_predictions = (y_pred == y).sum()
-    accuracy = (num_correct_predictions / y.shape[0]) * 100
-    print(f"Perceptron accuracy: {accuracy:.2f}%")
+    x1_1 = (-p.weights[0] * x0_1 - p.bias) / p.weights[1]
+    x1_2 = (-p.weights[0] * x0_2 - p.bias) / p.weights[1]
 
+    ax.plot([x0_1, x0_2], [x1_1, x1_2], "k")
 
-    error_df = pd.DataFrame({'error':errors, 'time-step': np.arange(0, len(errors))})
+    ymin = np.amin(X_train[:, 1])
+    ymax = np.amax(X_train[:, 1])
+    ax.set_ylim([ymin - 3, ymax + 3])
 
-    plt.plot(error_df['error'])
-    plt.title("error-rate")
-    plt.xlabel("time-step")
-    plt.ylabel("error")
     plt.show()
