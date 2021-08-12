@@ -6,9 +6,12 @@ class Perceptron:
         self.weights = np.zeros((num_features, 1), dtype=np.float64)
         self.bias = np.zeros(1, dtype=np.float64)
 
+    def activation_function(self, linear):
+        return np.where(linear > 0., 1, 0)
+
     def forward(self, x):
         linear = np.dot(x, self.weights) + self.bias
-        predictions = np.where(linear > 0., 1, 0)
+        predictions = self.activation_function(linear)
         return predictions
 
     def backward(self, x, y):
@@ -18,7 +21,7 @@ class Perceptron:
 
     def train(self, x, y, epochs):
         
-        for e in range(epochs):
+        for _ in range(epochs):
             for i in range(y.shape[0]):
                 errors = self.backward(x[i].reshape(1, self.num_features), y[i]).reshape(-1)
                 self.weights += (errors*x[i]).reshape(self.num_features, 1)
