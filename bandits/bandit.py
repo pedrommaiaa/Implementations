@@ -45,6 +45,7 @@ class Bandit:
         self.q_estimation[action] += (reward - self.q_estimation[action]) / self.action_count[action]
         return reward
 
+
 def simulate(runs, time, bandits):
     rewards = np.zeros((len(bandits), runs, time))
     best_action_counts = np.zeros(rewards.shape)
@@ -61,6 +62,7 @@ def simulate(runs, time, bandits):
     mean_rewards = rewards.mean(axis=1)
     return mean_best_action_counts, mean_rewards
 
+
 if __name__ == "__main__":
     runs = 2000
     time = 1000
@@ -75,7 +77,7 @@ if __name__ == "__main__":
     plt.ylabel('average reward')
     plt.legend()
 
-    plt.savefig('average_reward2.png')
+    plt.savefig('average_reward.png')
     plt.close
 
     plt.figure()
@@ -85,6 +87,6 @@ if __name__ == "__main__":
     plt.ylabel('% optimal action')
     plt.legend()
 
-    plt.savefig('optimal_action2.png')
+    plt.savefig('optimal_action.png')
     plt.close
 
