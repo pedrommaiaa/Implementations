@@ -1,9 +1,9 @@
 # n-armed Bandit Problem
 
 
-Average reward comapring epsilons:       
+Average reward comparing epsilons:       
 ![](average_reward.png).
 
 
-% of choosing the optimal action:       
+% of times choosing the optimal action:       
 ![](optimal_action.png).
