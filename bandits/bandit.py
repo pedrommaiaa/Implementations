@@ -8,11 +8,11 @@ np.random.seed(10)
 
 
 class Bandit:
-    def __init__(self, n_arm=10, epsilon=0., step_size=0.1):
+    def __init__(self, n_arm=10, epsilon=[0.], step_size=0.1):
         self.n = n_arm
         self.step_size = step_size
         self.indices = np.arange(self.n)
-        self.epsilon = epsilon
+        self.epsilons = [x for x in epsilon]
 
     def reset(self):
         # real reward for each action
@@ -28,8 +28,8 @@ class Bandit:
 
 
     # get an action for this bandit
-    def act(self):
-        if np.random.uniform(0,1) < self.epsilon:
+    def act(self, epsilon):
+        if np.random.uniform(0,1) < epsilon:
             return np.random.choice(self.indices)
         else:
             q_best = np.max(self.q_estimation)
@@ -46,37 +46,35 @@ class Bandit:
         return reward
 
 
-def simulate(runs, time, bandits):
-    rewards = np.zeros((len(bandits), runs, time))
-    best_action_counts = np.zeros(rewards.shape)
-    for i, bandit in enumerate(bandits):
-        for r in trange(runs):
-            bandit.reset()
-            for t in range(time):
-                action = bandit.act()
-                reward = bandit.step(action)
-                rewards[i, r, t] = reward
-                if action == bandit.best_action:
-                    best_action_counts[i, r, t] = 1
-    mean_best_action_counts = best_action_counts.mean(axis=1)
-    mean_rewards = rewards.mean(axis=1)
-    return mean_best_action_counts, mean_rewards
+    def simulate(self, epochs=2000, times=1000):
+        rewards = np.zeros((len(self.epsilons), epochs, time))
+        best_action_counts = np.zeros(rewards.shape)
+        for i, epsilon in enumerate(self.epsilons):
+            for r in trange(epochs):
+                self.reset()
+                for t in range(time):
+                    action = bandit.act(epsilon)
+                    reward = bandit.step(action)
+                    rewards[i, r, t] = reward
+                    if action == bandit.best_action:
+                        best_action_counts[i, r, t] = 1
+        mean_best_action_counts = best_action_counts.mean(axis=1)
+        mean_rewards = rewards.mean(axis=1)
+        return mean_best_action_counts, mean_rewards
 
 
 if __name__ == "__main__":
-    runs = 2000
-    time = 1000
-    epsilons = [0, 0.01, 0.1]
-    bandits = [Bandit(epsilon=eps) for eps in epsilons]
-    best_action_counts, rewards = simulate(runs, time, bandits)
-
+    
+    epsilons = [0, 0.01, 0.1] 
+    bandit = Bandit(epsilon=epsilons)
+    best_action_counts, rewards = bandit.simulate()
+    
     plt.figure()
     for eps, rewards in zip(epsilons, rewards):
         plt.plot(rewards, label='$\epsilon = %.02f$' % (eps))
     plt.xlabel('steps')
     plt.ylabel('average reward')
     plt.legend()
-
     plt.savefig('average_reward.png')
     plt.close
 
@@ -86,7 +84,5 @@ if __name__ == "__main__":
     plt.xlabel('steps')
     plt.ylabel('% optimal action')
     plt.legend()
-
     plt.savefig('optimal_action.png')
     plt.close
-
