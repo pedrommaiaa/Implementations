@@ -21,7 +21,7 @@ class Bandit:
         # estimation for each action
         self.q_estimation = np.zeros(self.n)
 
-        # # of chosen times for each action
+        # number of chosen times for each action
         self.action_count = np.zeros(self.n)
         
         self.best_action = np.argmax(self.q_true)
