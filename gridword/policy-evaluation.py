@@ -39,7 +39,7 @@ def policy_evaluation(policy, env, discount_factor=1.0, theta=0.00001):
             V[state] = v
         if delta < theta:
             break
-    return np.array(V)
+    return np.round(np.array(V), 1)
 
 
 if __name__ == "__main__":
