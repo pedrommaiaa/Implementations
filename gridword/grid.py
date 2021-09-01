@@ -8,13 +8,12 @@ class gridWorld(discrete.DiscreteEnv):
     You are an agent on an MxN grid and your goal is to reach the terminal
     state at the bottom right corner.
 
-    For example, a 5x5 grid looks as follows:
+    For example, a 4x4 grid looks as follows:
 
-    0 0 0 0 0
-    0 0 0 0 0
-    0 0 X 0 0 
-    0 0 0 0 0
-    0 0 0 0 T
+    T 0 0 0
+    0 0 X 0 
+    0 0 0 0
+    0 0 0 T
 
     x is your position and T are the two terminal states.
 
@@ -23,7 +22,7 @@ class gridWorld(discrete.DiscreteEnv):
     You receive a reward of -1 at eachs tep until you reach a terminal state.
     """
     
-    def __init__(self, shape=[5, 5]):
+    def __init__(self, shape=[4, 4]):
 
         self.shape = shape
 
@@ -45,15 +44,16 @@ class gridWorld(discrete.DiscreteEnv):
             # P[s][a] = (prob, next_state, reward, is_done)
             P[s] = {a : [] for a in range(nA)}
 
-            is_done = lambda s: s == (nS - 1)
+            is_done = lambda s: s == 0 or s == (nS - 1)
             reward = 0.0 if is_done(s) else -1.0
 
-            # We're stuck in a terminal state
+            # We are in a terminal state
             if is_done(s):
                 P[s][self.actions[0]] = [(1.0, s, reward, True)]
                 P[s][self.actions[1]] = [(1.0, s, reward, True)]
                 P[s][self.actions[2]] = [(1.0, s, reward, True)]
                 P[s][self.actions[3]] = [(1.0, s, reward, True)]
+            
             # Not a terminal state
             else:
                 ns_up = s if y == 0 else s - MAX_X
@@ -86,7 +86,7 @@ class gridWorld(discrete.DiscreteEnv):
 
             if self.s == s:
                 print('X', end=' ')
-            elif s == self.nS - 1:
+            elif s == 0 or s == self.nS - 1:
                 print('T', end=' ')
             else:
                 print('0', end=' ')

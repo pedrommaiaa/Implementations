@@ -4,7 +4,6 @@ from grid import gridWorld
 # Problem: Evaluate a given policy pi
 # Solution: Iterative application of Bellman expectation backup
 
-
 def policy_evaluation(policy, env, discount_factor=1.0, theta=0.00001):
     """
     Evaluate a policy given an environment anda full description of the 
@@ -41,7 +40,6 @@ def policy_evaluation(policy, env, discount_factor=1.0, theta=0.00001):
         if delta < theta:
             break
     return np.array(V)
-
 
 
 if __name__ == "__main__":
