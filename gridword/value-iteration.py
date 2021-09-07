@@ -66,7 +66,6 @@ def value_iteration(env, theta=0.0001, discount_factor=1.0):
 if __name__ == "__main__":
 
     env = gridWorld()
-
     policy, v = value_iteration(env)
 
     print(f"Policy Probability Distribution:\n {policy}\n")

@@ -4,7 +4,6 @@
 
 To-dos:
 - Implement pytorch & pure python versions of perceptron.
-- Understand how to prepare data.
 
 
 References:
