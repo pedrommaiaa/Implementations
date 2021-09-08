@@ -1,5 +1,5 @@
 import numpy as np
-from grid import gridWorld
+from gridWorld.grid import gridWorld
 
 # Problem: Evaluate a given policy pi
 # Solution: Iterative application of Bellman expectation backup
@@ -45,7 +45,7 @@ def policy_evaluation(policy, env, discount_factor=1.0, theta=0.00001):
 if __name__ == "__main__":
 
     env = gridWorld()
-    env.display()
+    #env.display()
     
     random_policy = np.ones([env.nS, env.nA]) / env.nA
     

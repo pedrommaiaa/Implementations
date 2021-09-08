@@ -1,5 +1,5 @@
 import numpy as np
-from grid import gridWorld
+from gridWorld.grid import gridWorld
 
 
 # From policy-evaluation!

@@ -1,5 +1,5 @@
 import numpy as np
-from grid import gridWorld
+from gridWorld.grid import gridWorld
 
 
 def value_iteration(env, theta=0.0001, discount_factor=1.0):
