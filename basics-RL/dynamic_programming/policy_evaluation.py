@@ -1,10 +1,14 @@
+import sys
 import numpy as np
-from gridWorld.grid import gridWorld
+
+sys.path.append('../')
+np.random.seed(10)
+from env.gridWorld import gridWorld
 
 # Problem: Evaluate a given policy pi
 # Solution: Iterative application of Bellman expectation backup
 
-def policy_evaluation(policy, env, discount_factor=1.0, theta=0.00001):
+def policy_evaluation(policy, env, discount_factor=1.0, threshold=0.00001):
     """
     Evaluate a policy given an environment anda full description of the 
     environment's dynamics.
@@ -37,7 +41,7 @@ def policy_evaluation(policy, env, discount_factor=1.0, theta=0.00001):
             # How much our value function changed (across any states)
             delta = max(delta, np.abs(v - V[state]))
             V[state] = v
-        if delta < theta:
+        if delta < threshold:
             break
     return np.round(np.array(V), 1)
 
@@ -49,6 +53,6 @@ if __name__ == "__main__":
     
     random_policy = np.ones([env.nS, env.nA]) / env.nA
     
-    v = policy_evaluation(random_policy, env)
+    V = policy_evaluation(random_policy, env)
 
-    print(f"Value Function:\n {v.reshape(env.shape)}")
+    print(f"Value Function:\n{V.reshape(env.shape)}")

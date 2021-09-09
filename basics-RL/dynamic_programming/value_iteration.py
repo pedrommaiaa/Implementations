@@ -1,5 +1,9 @@
+import sys
 import numpy as np
-from gridWorld.grid import gridWorld
+
+sys.path.append('../')
+np.random.seed(10)
+from env.gridWorld import gridWorld
 
 
 def value_iteration(env, theta=0.0001, discount_factor=1.0):
@@ -17,23 +21,7 @@ def value_iteration(env, theta=0.0001, discount_factor=1.0):
     Returns:
         A tuple (policy, V) of the optimal policy and the optimal value function.
     """
-    def one_step_lookahead(state, V):
-        """
-        Helper function to calculate the value for all actions in a given state.
-
-        Args:
-            state: The state to consider (int)
-            V: The value to use as an estimator, Vector of length env.nS
-
-        Returns:
-            A vector of length env.nA containing the expected value of each action.
-        """
-        A = np.zeros(env.nA)
-        for a in range(env.nA):
-            for prob, next_state, reward, done in env.P[state][a]:
-                A[a] += prob * (reward + discount_factor * V[next_state])
-        return A
-
+    # 1. Init
     V = np.zeros(env.nS)
     while True:
         # Stopping condition
@@ -41,7 +29,10 @@ def value_iteration(env, theta=0.0001, discount_factor=1.0):
         # Update each state...
         for s in range(env.nS):
             # Do a one-step lookahead to find the best action
-            A = one_step_lookahead(s, V)
+            A = np.zeros(env.nA)
+            for a in range(env.nA):
+                for prob, next_state, reward, done in env.P[s][a]:
+                    A[a] += prob * (reward + discount_factor * V[next_state]) 
             best_action_value = np.max(A)
             # Calculate delta across all states seen so far
             delta = max(delta, np.abs(best_action_value - V[s]))
@@ -55,7 +46,10 @@ def value_iteration(env, theta=0.0001, discount_factor=1.0):
     policy = np.zeros([env.nS, env.nA])
     for s in range(env.nS):
         # One step lookahead to find the best action for this state
-        A = one_step_lookahead(s, V)
+        A = np.zeros(env.nA)
+        for a in range(env.nA):
+            for prob, next_state, reward, done in env.P[s][a]:
+                A[a] += prob * (reward + discount_factor * V[next_state]) 
         best_action = np.argmax(A)
         # Always take the best action
         policy[s, best_action] = 1.0
@@ -68,10 +62,10 @@ if __name__ == "__main__":
     env = gridWorld()
     policy, v = value_iteration(env)
 
-    print(f"Policy Probability Distribution:\n {policy}\n")
+    print(f"Policy Probability Distribution:\n{policy}\n")
 
-    print(f"Reshaped Grid Policy (0=up, 1=right, 2=down, 3=left):\n {np.reshape(np.argmax(policy, axis=1), env.shape)}\n")
+    print(f"Reshaped Grid Policy (0=up, 1=right, 2=down, 3=left):\n{np.reshape(np.argmax(policy, axis=1), env.shape)}\n")
 
-    print(f"Value Function:\n {v}\n")
+    print(f"Value Function:\n{v}\n")
 
-    print(f"Reshaped Grid Value Function:\n {v.reshape(env.shape)}\n")
+    print(f"Reshaped Grid Value Function:\n{v.reshape(env.shape)}\n")
