@@ -70,8 +70,6 @@ class gridWorld(discrete.DiscreteEnv):
         # Initial state distribution is uniform
         isd = np.ones(nS) / nS
 
-        # We expose the model of the environment for educational purposes
-        # This should not be used in any model-free learning algorithm
         self.P = P
 
         super(gridWorld, self).__init__(nS, nA, P, isd)
