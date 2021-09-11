@@ -61,6 +61,9 @@ if __name__ == "__main__":
     env = gridWorld()
 
     policy, v = policy_iteration(env)
+
+    print(policy.shape)
+    print(policy)
      
     print(f"Policy Probability Distribution:\n{policy}\n")
 
@@ -68,4 +71,4 @@ if __name__ == "__main__":
 
     print(f"Value Function:\n{v}\n")
 
-    print(f"Reshaped Grid Value Function:\n{v.reshape(env.shape)}\n")
+    #print(f"Reshaped Grid Value Function:\n{v.reshape(env.shape)}\n")
