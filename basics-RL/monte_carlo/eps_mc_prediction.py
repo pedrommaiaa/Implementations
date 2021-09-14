@@ -7,20 +7,20 @@ np.random.seed(10)
 from env.gridWorld import gridWorld
 
 
-def mc_prediction(env, num_episodes, discount=1.0, eps=0.1):
+def eps_mc_prediction(env, num_episodes, discount=0.99, eps=0.1):
     """
-    Monte Carlo prediction algorithm. Calculates the value function
-    for a given policy.
+    On-policy first-visit Monte Carlo control (for epsilon policies) algorithm.
     
     Args:
         policy: A function that maps an observation to action probabilities.
         env: OpenAI gym environment.
         num_episodes: Number of episodes to sample.
         discount_factor: Gamma discount factor.
+        eps: Epsilon value.
     
     Returns:
-        A dictionary that maps from state -> value.
-        The state is a tuple and the value is a float.
+        Q: Action-value function. A dictionary that maps from state -> value.
+        Policy: Epsilon-greedy policy. A numpy array with length (env.nS, env.nA).
     """ 
     # Keeps track of sum and count of returns for each state
     # to calculate an average. We could use an array to save all
@@ -30,7 +30,6 @@ def mc_prediction(env, num_episodes, discount=1.0, eps=0.1):
     
     # The final action-value function.
     # A nested dictionary that maps state -> (action -> action-value).
-    #Q = np.ones([env.nS, env.nA]) / env.nA
     Q = defaultdict(lambda: np.zeros(env.nA)) 
     
     policy = np.ones([env.nS, env.nA]) / env.nA
@@ -62,14 +61,13 @@ def mc_prediction(env, num_episodes, discount=1.0, eps=0.1):
                 break
             state = next_state
 
-        
         states_in_episode = set([(x[0], x[1]) for x in episode]) # unique states visited
         for state, action in states_in_episode:
             sa_pair = (state, action)
             # for each unique state, get the index in episode of the first occurence of that state
             first_occurence = next(i for i,x in enumerate(episode) 
                                    if x[0] == state and x[1] == action)
-            # sum all the rewards*gamma for each first occurence state in episode 
+            #sum all the rewards*gamma for each first occurence state in episode 
             G = sum([x[2]*(discount**i) for i, x in enumerate(episode[first_occurence:])])
             returns_sum[sa_pair] += G
             returns_count[sa_pair] += 1.0
@@ -83,13 +81,13 @@ if __name__ == "__main__":
 
     env = gridWorld()
     
-    Q, policy = mc_prediction(env, 500000)
+    Q, policy = eps_mc_prediction(env, 50000)
     
     V = np.zeros(env.nS)
     for state, actions in Q.items():
         action_value = np.max(actions)
         V[state] = action_value
 
-    print(f"Reshaped Grid Policy (0=up, 1=right, 2=down, 3=left):\n{np.reshape(np.argmax(policy, axis=1), env.shape)}\n")
+    print(f"Grid Policy (0=up, 1=right, 2=down, 3=left):\n{np.reshape(np.argmax(policy, axis=1), env.shape)}\n")
 
-    print(f"Reshaped Grid Value Function:\n{np.round(V.reshape(env.shape))}\n")
+    print(f"Grid Value Function:\n{np.round(V.reshape(env.shape))}\n")
