@@ -28,7 +28,7 @@ def create_target_policy_fn():
 
 def sampling_mc_prediction(env, num_episodes, discount=0.99):
     """
-    Monte Carlo Control Off-Policy Control using Weighted Importance Sampling.
+    Monte Carlo Off-Policy Control using Weighted Importance Sampling.
     Finds an optimal greedy policy.
 
     Args:

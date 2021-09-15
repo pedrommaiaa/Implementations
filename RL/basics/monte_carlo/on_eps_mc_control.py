@@ -8,7 +8,7 @@ np.random.seed(10)
 from env.gridWorld import gridWorld
 
 
-def eps_mc_prediction(env, num_episodes, discount=0.99, eps=0.1):
+def eps_mc_control(env, num_episodes, discount=0.99, eps=0.1):
     """
     On-policy first-visit Monte Carlo control (for epsilon policies) algorithm.
     
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     env = gridWorld()
     
-    Q, policy = eps_mc_prediction(env, 50000)
+    Q, policy = eps_mc_control(env, 50000)
     
     V = np.zeros(env.nS)
     for state, actions in Q.items():

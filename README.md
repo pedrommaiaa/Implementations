@@ -22,7 +22,7 @@ implementing algorithms.
   - [Policy Iteration - Dynamic Programming](https://github.com/pedrommaiaa/Implementations/blob/main/RL/basics/dynamic_programming/policy_iteration.py).
   - [Value Iteration - Dynamic Programming](https://github.com/pedrommaiaa/Implementations/blob/main/RL/basics/dynamic_programming/value_iteration.py).
   - [On-policy Monte Carlo Prediction]().
-  - [Off-policy Monte Carlo Prediction]().
+  - [Off-policy Monte Carlo Prediction](https://github.com/pedrommaiaa/Implementations/blob/main/RL/basics/monte_carlo/off_mc_prediction.py).
   - [On-policy Monte Carlo Control]().
   - [Off-policy Monte Carlo Control]().
 
