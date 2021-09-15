@@ -1,7 +1,8 @@
 import sys
 import numpy as np
 
-sys.path.append('../')
+if "../../" not in sys.path:
+    sys.path.append('../../')
 np.random.seed(10)
 from env.gridWorld import gridWorld
 from policy_evaluation import policy_evaluation
@@ -62,13 +63,8 @@ if __name__ == "__main__":
 
     policy, v = policy_iteration(env)
 
-    print(policy.shape)
-    print(policy)
-     
     print(f"Policy Probability Distribution:\n{policy}\n")
 
     print(f"Reshaped Grid Policy (0=up, 1=right, 2=down, 3=left):\n{np.reshape(np.argmax(policy, axis=1), env.shape)}\n")
 
-    print(f"Value Function:\n{v}\n")
-
-    #print(f"Reshaped Grid Value Function:\n{v.reshape(env.shape)}\n")
+    print(f"Reshaped Grid Value Function:\n{v.reshape(env.shape)}\n")

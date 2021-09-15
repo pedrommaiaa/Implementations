@@ -46,7 +46,7 @@ class Bandit:
         return reward
 
 
-    def simulate(self, epochs=2000, times=1000):
+    def simulate(self, epochs=2000, time=1000):
         rewards = np.zeros((len(self.epsilons), epochs, time))
         best_action_counts = np.zeros(rewards.shape)
         for i, epsilon in enumerate(self.epsilons):
