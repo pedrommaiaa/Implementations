@@ -7,22 +7,23 @@ if "../../" not in sys.path:
 np.random.seed(10)
 from env.gridWorld import gridWorld
 
-def action_probs(A):
-    epsilon = 0.25
-    idx = np.argmax(A)
-    probs = []
-    A_ = np.sqrt(sum([i**2 for i in A]))
 
-    if A_ == 0:
-        A_ = 1.0
-    for i, a in enumerate(A):
-        if i == idx:
-            probs.append(round(1-epsilon + (epsilon/A_),3))
-        else:
-            probs.append(round(epsilon/A_,3))
-    err = sum(probs)-1
+def create_target_policy_fn():
+    def target_policy_fn(A):
+        epsilon = 0.25
+        idx = np.argmax(A)
+        probs = []
+        A_ = np.sqrt(sum([i**2 for i in A]))
+        if A_ == 0:
+            A_ = 1.0
+        for i, a in enumerate(A):
+            if i == idx:
+                probs.append(round(1-epsilon + (epsilon/A_),3))
+            else:
+                probs.append(round(epsilon/A_,3))
+        return np.array(probs)
+    return target_policy_fn
 
-    return np.array(probs)
 
 
 def sampling_mc_prediction(env, num_episodes, discount=0.99):
@@ -33,11 +34,10 @@ def sampling_mc_prediction(env, num_episodes, discount=0.99):
     Args:
         env: OpenAI gym environment.
         num_episodes: Number of episodes to sample.
-        behavior_policy: The behavior to follow while generating episodes.
-            A function that given an observation returns a vector of probabilities for each aciton.
         discount_factor: Gamma discount factor.
     
     Returns:
+        Q: Action-value function.
     """
     # The final action-value function
     Q = defaultdict(lambda: np.zeros(env.nA)) 
@@ -45,19 +45,12 @@ def sampling_mc_prediction(env, num_episodes, discount=0.99):
     C = np.zeros((env.nS, env.nA))
 
     # Behavior policy - random policy actions and probabilities for each action
-    def behavior_policy_fn():
-        A = np.ones(env.nA, dtype=float) / env.nA
-        return A
+    def behavior_policy(state):
+        A = np.ones([env.nS, env.nA], dtype=float) / env.nA
+        return A[state]
 
-    # target policy - in this case I used the soft-epsilon policy of the on-policy MC
-    target_policy = np.ones([env.nS, env.nA]) / env.nA 
-    def target_policy_fn(state, target_policy):
-        A = np.ones(env.nA, dtype=float) * discount / env.nA
-        best_action = np.argmax(Q[state])
-        A[best_action] += (1.0 - discount)
-        target_policy[state] = np.eye(env.nA)[best_action]
-        return A
-    
+    # Target Policy 
+    target_policy_fn = create_target_policy_fn()
 
     for i_episode in range(1, num_episodes + 1):
         # Print out which episode we're on, useful for debugging.
@@ -71,7 +64,7 @@ def sampling_mc_prediction(env, num_episodes, discount=0.99):
         episode = []
         state = env.reset()
         while True:
-            probs = behavior_policy_fn()
+            probs = behavior_policy(state)
             action = np.random.choice(np.arange(len(probs)), p=probs)
             next_state, reward, done, _ = env.step(action)
             episode.append((state, action, reward))
@@ -92,30 +85,25 @@ def sampling_mc_prediction(env, num_episodes, discount=0.99):
             # This also improves our target policy which holds a referece to V
             Q[state][action] += (W / C[state][action]) * (G - Q[state][action])
             
-            target_policy_fn(state, target_policy)
+            target_policy = target_policy_fn(Q[state])
 
-            action_values = Q[state]
-            probs = action_probs(action_values)
-            
-            W = W * probs[action]/behavior_policy_fn()[action]
+            W = W * target_policy[action]/behavior_policy(state)[action]
             if W == 0:
                 break 
         
 
     print()
-    return Q, target_policy
+    return Q
 
 
 if __name__ == "__main__":
 
     env = gridWorld()
-    Q, target_policy = sampling_mc_prediction(env, 50000) 
+    Q = sampling_mc_prediction(env, 10000) 
     
     V = np.zeros(env.nS)
     for state, actions in Q.items():
         action_value = np.max(actions)
         V[state] = action_value
     
-    print(f"Grid Policy (0=up, 1=right, 2=down, 3=left):\n{np.argmax(target_policy, axis=1).reshape(env.shape)}\n")
-
     print(f"Value function:\n{np.round(V.reshape(env.shape))}\n")
