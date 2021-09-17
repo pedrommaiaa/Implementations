@@ -8,7 +8,7 @@ np.random.seed(10)
 from env.gridWorld import gridWorld
 
 
-def eps_mc_control(env, num_episodes, discount=0.99, eps=0.1):
+def eps_mc_control(env, num_episodes, discount=0.99, epsilon=0.1):
     """
     On-policy first-visit Monte Carlo control (for epsilon policies) algorithm.
     
@@ -36,11 +36,22 @@ def eps_mc_control(env, num_episodes, discount=0.99, eps=0.1):
     policy = np.ones([env.nS, env.nA]) / env.nA
     
     def policy_fn(state, policy):
-        A = np.ones(env.nA, dtype=float) * eps / env.nA
-        best_action = np.argmax(Q[state])
-        A[best_action] += (1.0 - eps)
-        policy[state] = np.eye(env.nA)[best_action]
-        return A
+        """ e-greedy policy """
+        if np.random.random() > epsilon:
+            best_action = np.argmax(Q[state])
+            policy[state] = np.eye(env.nA)[best_action]
+            return best_action
+        else:
+            return np.random.randint(0, len(Q[state]))
+    
+    #policy = np.ones([env.nS, env.nA]) / env.nA
+    #
+    #def policy_fn(state, policy):
+    #    A = np.ones(env.nA, dtype=float) * eps / env.nA
+    #    best_action = np.argmax(Q[state])
+    #    A[best_action] += (1.0 - eps)
+    #    policy[state] = np.eye(env.nA)[best_action]
+    #    return A
     
     for i_episode in range(1, num_episodes + 1):
         # Print out which episode we're on, useful for debugging.
@@ -54,8 +65,8 @@ def eps_mc_control(env, num_episodes, discount=0.99, eps=0.1):
         episode = []
         state = env.reset()
         while True:
-            probs = policy_fn(state, policy)
-            action = np.random.choice(np.arange(len(probs)), p=probs)
+            action = policy_fn(state, policy)
+            #action = np.random.choice(np.arange(len(probs)), p=probs)
             next_state, reward, done, _ = env.step(action)
             episode.append((state, action, reward))
             if done:
@@ -82,7 +93,7 @@ if __name__ == "__main__":
 
     env = gridWorld()
     
-    Q, policy = eps_mc_control(env, 50000)
+    Q, policy = eps_mc_control(env, 10000)
     
     V = np.zeros(env.nS)
     for state, actions in Q.items():
