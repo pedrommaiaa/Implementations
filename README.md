@@ -25,5 +25,5 @@ implementing algorithms.
   - [Off-policy Monte Carlo Prediction](https://github.com/pedrommaiaa/Implementations/blob/main/RL/basics/monte_carlo/off_mc_prediction.py).
   - [On-policy Monte Carlo Control](https://github.com/pedrommaiaa/Implementations/blob/main/RL/basics/monte_carlo/on_eps_mc_control.py).
   - [TD prediction - Temporal Difference Learning](https://github.com/pedrommaiaa/Implementations/blob/main/RL/basics/TD/td_prediction.py).
-  - [SARSA algorithm]().
-  - [Q-Learning algorithm]().
+  - [SARSA algorithm](https://github.com/pedrommaiaa/Implementations/blob/main/RL/basics/TD/sarsa.py).
+  - [Q-Learning algorithm](https://github.com/pedrommaiaa/Implementations/blob/main/RL/basics/TD/q-learning.py).
