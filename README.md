@@ -1,6 +1,6 @@
 # Implementations
 
-implementing algorithms.
+implementing algorithms and whatever comes to mind.
 
 
 ## Table of Contents
