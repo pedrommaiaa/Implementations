@@ -2,8 +2,8 @@ import sys
 import numpy as np
 from collections import defaultdict
 
-if "../../" not in sys.path:
-    sys.path.append('../../')
+if "../" not in sys.path:
+    sys.path.append('../')
 np.random.seed(10)
 from env.gridWorld import gridWorld
 

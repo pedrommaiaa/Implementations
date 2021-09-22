@@ -1,11 +1,11 @@
 import sys
 import numpy as np
 
-if "../../" not in sys.path:
-    sys.path.append('../../')
+if "../" not in sys.path:
+    sys.path.append('../')
 np.random.seed(10)
 from env.gridWorld import gridWorld
-from policy_evaluation import policy_evaluation
+from dp_policy_evaluation import policy_evaluation
 
 
 def policy_iteration(env, policy_eval_fn=policy_evaluation, discount_factor=1.0):

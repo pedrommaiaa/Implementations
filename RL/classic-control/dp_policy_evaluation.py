@@ -1,8 +1,8 @@
 import sys
 import numpy as np
 
-if "../../" not in sys.path:
-    sys.path.append('../../')
+if "../" not in sys.path:
+    sys.path.append('../')
 np.random.seed(10)
 from env.gridWorld import gridWorld
 
@@ -50,7 +50,6 @@ def policy_evaluation(policy, env, discount_factor=1.0, threshold=0.00001):
 if __name__ == "__main__":
 
     env = gridWorld()
-    #env.display()
     
     random_policy = np.ones([env.nS, env.nA]) / env.nA
     

@@ -2,16 +2,15 @@ import sys
 import numpy as np
 from collections import defaultdict
 
-if "../../" not in sys.path:
-    sys.path.append('../../')
+if "../" not in sys.path:
+    sys.path.append('../')
 np.random.seed(10)
 from env.gridWorld import gridWorld
 
 
-def q_learning(env, num_episodes, discount=0.99, epsilon=0.1, alpha=0.01):
+def sarsa(env, num_episodes, discount=0.99, epsilon=0.1, alpha=0.01):
     """
-    Q-Learning algorithm: Off-policy TD control. Finds the optimal greedy policy
-    while following an epsilon-greedy policy.
+    SARSA algorithm: On-policy TD control.
     
     Args:
         env: OpenAI gym environment.
@@ -29,7 +28,6 @@ def q_learning(env, num_episodes, discount=0.99, epsilon=0.1, alpha=0.01):
     
     final_policy = np.ones([env.nS, env.nA]) / env.nA
     
-    # The policy we're following
     def policy(state, final_policy):
         """ e-greedy policy """
         if np.random.random() > epsilon:
@@ -46,17 +44,18 @@ def q_learning(env, num_episodes, discount=0.99, epsilon=0.1, alpha=0.01):
             sys.stdout.flush()
 
         state = env.reset()
+        action = policy(state, final_policy)
         while True:
-            action = policy(state, final_policy)
             next_state, reward, done, _ = env.step(action)
             
-            best_next_action = np.argmax(Q[next_state])
+            next_action = policy(next_state, final_policy)
 
-            Q[state][action] += alpha*(reward + discount*Q[next_state][best_next_action] - Q[state][action])
+            Q[state][action] += alpha*(reward + discount*Q[next_state][next_action] - Q[state][action])
 
             if done:
                 break
             state = next_state
+            action = next_action
 
          
     print()
@@ -67,7 +66,7 @@ if __name__ == "__main__":
 
     env = gridWorld()
     
-    Q, policy = q_learning(env, 10000)
+    Q, policy = sarsa(env, 10000)
     
     V = np.zeros(env.nS)
     for state, actions in Q.items():
