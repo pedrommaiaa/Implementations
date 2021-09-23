@@ -2,10 +2,6 @@
 
 "a classic Rosenblatt Perceptron"
 
-To-dos:
-- Implement pytorch & pure python versions of perceptron.
-
-
 References:
 - [The Perceptron](https://pabloinsente.github.io/the-perceptron).
 - [Percepton slides](https://sebastianraschka.com/pdf/lecture-notes/stat453ss21/L03_perceptron_slides.pdf).
